@@ -2,12 +2,12 @@
 #include <cstdlib>
 #include <iostream>
 
+
 bool **create_board(const int height, const int width) {
-  bool **board;
-  *board = (bool *)malloc(sizeof(bool) * height);
+  bool **board = (bool **)malloc(sizeof(bool) * height);
 
   for (int i = 0; i < height; i++) {
-    *board[i] = (bool *)malloc(sizeof(bool) * width);
+    board[i] = (bool *)malloc(sizeof(bool) * width);
   }
 
   return board;
@@ -18,7 +18,7 @@ void destroy_board(bool **board, const int height) {
     bool *arry = board[i];
     free(arry);
   }
-  free(*board);
+  free(board);
 }
 
 void place_ships(bool **board, const int shipcount, const int width, const int height)
@@ -27,14 +27,23 @@ void place_ships(bool **board, const int shipcount, const int width, const int h
   {
     int xCoord = rand() % width;
     int yCoord = rand() % height;
-    board[xCoord][yCoord] = 1;
+
+    if (board[xCoord][yCoord] == 1)
+    {
+      i--;
+      break;
+    }
+    else
+    {
+      board[xCoord][yCoord] = 1;
+    }
   }
 }
-
-Coordinates *find_ships(bool **board, const int width, const int height)
+  
+Coordinates *find_ships(bool **board, const int width, const int height, const int ship_count)
 {
   Coordinates *ret;
-
+  
   ResponseType lastGuess;
   Coordinates *nearMissCoords;
   int xGuess;
@@ -44,7 +53,7 @@ Coordinates *find_ships(bool **board, const int width, const int height)
     xGuess = rand() % width;
     yGuess = rand() % height;
     
-    currGuess = guess(board, xGuess, yGuess);
+    ResponseType currGuess = guess(board, height, width, xGuess, yGuess);
     lastGuess = currGuess;
     
     if (currGuess == HIT) {
@@ -63,7 +72,7 @@ Coordinates *find_ships(bool **board, const int width, const int height)
     {
       for(int j = -1; j <= 1; j++)
       {
-        if (guess(board, nearMissCoords->x+i, nearMissCoords->y+j) == HIT){
+        if (guess(board, height, width, nearMissCoords->x+i, nearMissCoords->y+j) == HIT){
           ret->x = nearMissCoords->x+i;
           ret->y = nearMissCoords->y+j;
           return ret;
@@ -75,13 +84,12 @@ Coordinates *find_ships(bool **board, const int width, const int height)
   return ret;
 }
 
-ResponseType guess(bool **board, const int x, const int y) {
+ResponseType guess(bool **board, const int height, const int width, const int x, const int y) {
   if(board[x][y] == 1)
   {
     return HIT;
   }
-  
-  else if
+  else
   {
     for(int i = -1; i <= 1; i++)
     {
@@ -98,16 +106,14 @@ ResponseType guess(bool **board, const int x, const int y) {
   return MISS;
 }
 
-// int main(){
-//   bool **board = create_board(6,6);
-//   //place_ships(board, 3, 10, 10);
-//   destroy_board(board, 6);
-  
-//   // for(int y = 0; y < 10; y++)
-//   // {
-//   //   for(int x = 0; x < 10; x++)
-//   //   {
-//   //     std::cout << board[y][x] <<std::endl;
-//   //   }
-//   // }
-// }
+std::string ResponseOut(ResponseType r){
+  if (r == HIT){
+        return "HIT";
+  }
+  else if (r == NEAR_MISS){
+      return "NEAR_MISS";
+  }
+  else{
+      return "MISS";
+  }
+}
