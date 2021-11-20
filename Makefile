@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -I. -g -Wall -Wextra -Werror -O2 -pedantic -std=c++11
+CFLAGS = -I. -Wall -g -Wextra -Werror -pedantic -std=c++11 -fbounds-check
 DEPS = logic.hpp
 OBJ =  main.o logic.o
 
